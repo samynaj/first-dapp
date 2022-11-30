@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My first DApp</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        div {
+            width: 20%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        button {
+            width: 100%;
+            height: 40px;
+            margin: 10px 0px 5px 0px;
+        }
+    </style>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+    <script>
+        const FoodContractAddress = '0x6dc4f7e6472Cf2d0dD099323Cee8A86F4cf9c403'
+        const FoodContractABI = [
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_food",
+                        "type": "string"
+                    }
+                ],
+                "name": "setFood",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getFood",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ]
+        let FoodContract;
+        let signer;
+
+        const provider = new ethers.providers.Web3Provider(window.ethereum, "goerli");
+        provider.send("eth_requestAccounts", []).then(() => {
+            provider.listAccounts().then((accounts) => {
+                signer = provider.getSigner(accounts[0])
+                FoodContract = new ethers.Contract(
+                    FoodContractAddress,
+                    FoodContractABI,
+                    signer
+                )
+            })
+        })
+
+        async function getFood() {
+            const getFoodPromise = FoodContract.getFood();
+            const Food = await getFoodPromise;
+            console.log(Food);
+        }
+        async function setFood() {
+            const food = document.getElementById("food").value;
+            const setFoodPromise = FoodContract.setFood(food);
+            await setFoodPromise;
+        }
+
+    </script>
+</head>
+
+<body>
+    <div>
+        <h1>My first dApp!</h1>
+        <p>Here we can set or get the food:</p>
+        <label for="food">Input Food:</label> <br />
+        <input type="text" id="food" />
+        <button onclick="getFood()">Get Food</button>
+        <button onclick="setFood()">Set Food</button>
+    </div>
+</body>
+
+</html>
